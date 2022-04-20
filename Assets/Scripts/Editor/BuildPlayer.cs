@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
@@ -11,7 +12,8 @@ public class BuildPlayer
     {
         BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
         buildPlayerOptions.scenes = FindEnabledEditorScenes();
-        buildPlayerOptions.locationPathName = string.Format("Build(AOS)/Test_{0}.apk",PlayerSettings.bundleVersion);
+        var path = Path.Combine("../", "Build", "Android");
+        buildPlayerOptions.locationPathName = string.Format($"{path}/Test_{0}.apk",PlayerSettings.bundleVersion);
         buildPlayerOptions.target = BuildTarget.Android;
         buildPlayerOptions.options = BuildOptions.Development;
         BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
