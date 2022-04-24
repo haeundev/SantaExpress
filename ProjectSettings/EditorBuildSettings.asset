@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/SantaExpress/SantaMainScene.unity
     guid: f8da5ff5a1c2d43d5b2f215cc341e5bc
+  - enabled: 1
+    path: Assets/SantaExpress/Scenes/Minimal3D.unity
+    guid: 1b73087f5760782428c932c37caebfcf
   m_configObjects: {}
