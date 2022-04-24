@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 /*
  * https://www.youtube.com/watch?v=64NblGkAabk
@@ -52,16 +53,7 @@ namespace SantaExpress.Scripts
             CreateShape();
             UpdateMesh();
         }
-
-        // Optionally, draw spheres at each vertex
-        // private void OnDrawGizmos()
-        // {
-        //     if (_vertices == default)
-        //         return;
-        //     foreach (var v in _vertices)
-        //         Gizmos.DrawSphere(v, 0.1f);
-        // }
-
+        
         private void CreateShape()
         {
             if (_isInitialPiece)
@@ -78,7 +70,7 @@ namespace SantaExpress.Scripts
             }
             else
             {
-                var prevRightest = prev == default ? default : prev.GetRightests();
+                var prevRightest = prev == default ? default : prev.GetRightestVertices();
 
                 _vertices = new Vector3[(_xSize + 1) * (_zSize + 1)];
 
@@ -128,8 +120,12 @@ namespace SantaExpress.Scripts
             _mesh.Clear();
             _mesh.vertices = _vertices;
             _mesh.triangles = _triangles;
-            _mesh.normals = CalculateNormals();
-           // _mesh.RecalculateNormals();
+            
+            if (_isInitialPiece)
+                _mesh.RecalculateNormals();
+            else
+                RecalculateNormalsSeamless();
+
             // optionally, add a mesh collider (As suggested by Franku Kek via Youtube comments).
             // To use this, your MeshGenerator GameObject needs to have a mesh collider
             // component added to it.  Then, just re-enable the code below.
@@ -140,45 +136,51 @@ namespace SantaExpress.Scripts
         //*/
         }
 
-        private Vector3[] CalculateNormals()
+        private void RecalculateNormalsSeamless()
         {
-            Vector3[] vertexNormals = new Vector3[_vertices.Length];
-            int triangleCount = _triangles.Length / 3;
-            for (int i = 0; i < triangleCount; i++)
-            {
-                int normalTriangleIndex = i * 3;
-                int vertexIndexA = _triangles[normalTriangleIndex];
-                int vertexIndexB = _triangles[normalTriangleIndex + 1];
-                int vertexIndexC = _triangles[normalTriangleIndex + 2];
-                var triangleNormal = SurfaceNormalFromIndices(vertexIndexA, vertexIndexB, vertexIndexC);
-                vertexNormals[vertexIndexA] += triangleNormal;
-                vertexNormals[vertexIndexB] += triangleNormal;
-                vertexNormals[vertexIndexC] += triangleNormal;
-            }
+            var leftests = GetLeftestIndices();
+            var prevRightests = prev.GetRightestIndices();
+            
+            var midNormals = new List<Vector3>();
+            var prevNormals = prev._mesh.normals;
+            _mesh.RecalculateNormals();
+            var thisNormals = _mesh.normals;
+            for (var i = 0; i < leftests.Count; i++) 
+                midNormals.Add((prevNormals[prevRightests[i]] + thisNormals[leftests[i]]) / 2);
+            
+            var newNormalsForThis = new List<Vector3>();
+            for (var i = 0; i < _mesh.normals.Length; i++)
+                newNormalsForThis.Add(leftests.Contains(i) ? midNormals[i/(_xSize+1)] : _mesh.normals[i]);
+            _mesh.SetNormals(newNormalsForThis);
 
-            for (int i = 0; i < vertexNormals.Length; i++)
-            {
-                vertexNormals[i].Normalize();
-            }
-
-            return vertexNormals;
+            var newNormalsForPrev = new List<Vector3>();
+            for (var i = 0; i < prev._mesh.normals.Length; i++)
+                newNormalsForPrev.Add(prevRightests.Contains(i) ? midNormals[i/(_xSize+1)] : prev._mesh.normals[i]);
+            prev._mesh.SetNormals(newNormalsForPrev);
         }
 
-        private Vector3 SurfaceNormalFromIndices(int indexA, int indexB, int indexC)
-        {
-            var pointA = _vertices[indexA];
-            var pointB = _vertices[indexB];
-            var pointC = _vertices[indexC];
-            var sideAB = pointB - pointA;
-            var sideAC = pointC - pointA;
-            return Vector3.Cross(sideAB, sideAC).normalized;
-        }
 
-    public List<Vector3> GetRightests()
+        private List<Vector3> GetRightestVertices()
         {
             var result = new List<Vector3>();
             for (var i = _xSize; i < _vertices.Length; i += _xSize + 1)
                 result.Add(_vertices[i]);
+            return result;
+        }
+        
+        private List<int> GetRightestIndices()
+        {
+            var result = new List<int>();
+            for (var i = _xSize; i < _vertices.Length; i += _xSize + 1)
+                result.Add(i);
+            return result;
+        }
+        
+        public List<int> GetLeftestIndices()
+        {
+            var result = new List<int>();
+            for (var i = 0; i < _vertices.Length; i += _xSize + 1)
+                result.Add(i);
             return result;
         }
     }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SantaExpress.Scripts
@@ -12,10 +13,10 @@ namespace SantaExpress.Scripts
         [SerializeField] private float perlinMax = 2f;
 
         private MeshGenerator _lastCreated;
-        
+
         private void Start()
         {
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 5; i++)
             {
                 var newPiece = Instantiate(meshGenerator, transform).GetComponent<MeshGenerator>();
                 //var pos = newPiece.transform.position;
