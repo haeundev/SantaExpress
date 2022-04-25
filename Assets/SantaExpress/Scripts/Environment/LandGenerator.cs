@@ -9,10 +9,9 @@ using Random = UnityEngine.Random;
 namespace SantaExpress.Scripts
 {
     [RequireComponent(typeof(MeshFilter))]
-    public class MeshGenerator : MonoBehaviour
+    public class LandGenerator : MonoBehaviour
     {
-        public MeshGenerator prev;
-
+        private LandGenerator _prev;
         private Mesh _mesh;
         private int[] _triangles;
         private Vector3[] _vertices;
@@ -23,7 +22,7 @@ namespace SantaExpress.Scripts
         private float _perlinMax;
         private bool _isInitialPiece;
 
-        public void SetPrev(MeshGenerator prev)
+        public void SetPrev(LandGenerator prev)
         {
             if (prev == default)
             {
@@ -31,7 +30,7 @@ namespace SantaExpress.Scripts
                 return;
             }
 
-            this.prev = prev;
+            this._prev = prev;
         }
 
         public void SetSize(int xSize, int zSize)
@@ -70,14 +69,14 @@ namespace SantaExpress.Scripts
             }
             else
             {
-                var prevRightest = prev == default ? default : prev.GetRightestVertices();
+                var prevRightest = _prev == default ? default : _prev.GetRightestVertices();
 
                 _vertices = new Vector3[(_xSize + 1) * (_zSize + 1)];
 
                 for (int i = 0, z = 0; z <= _zSize; z++)
                 for (var x = 0; x <= _xSize; x++)
                 {
-                    if (i % (_xSize + 1) == 0 && prev != default) // for continuous generation.
+                    if (i % (_xSize + 1) == 0 && _prev != default) // for continuous generation.
                     {
                         _vertices[i] = prevRightest[i / (_xSize + 1)];
                     }
@@ -139,10 +138,10 @@ namespace SantaExpress.Scripts
         private void RecalculateNormalsSeamless()
         {
             var leftests = GetLeftestIndices();
-            var prevRightests = prev.GetRightestIndices();
+            var prevRightests = _prev.GetRightestIndices();
             
             var midNormals = new List<Vector3>();
-            var prevNormals = prev._mesh.normals;
+            var prevNormals = _prev._mesh.normals;
             _mesh.RecalculateNormals();
             var thisNormals = _mesh.normals;
             for (var i = 0; i < leftests.Count; i++) 
@@ -154,9 +153,9 @@ namespace SantaExpress.Scripts
             _mesh.SetNormals(newNormalsForThis);
 
             var newNormalsForPrev = new List<Vector3>();
-            for (var i = 0; i < prev._mesh.normals.Length; i++)
-                newNormalsForPrev.Add(prevRightests.Contains(i) ? midNormals[i/(_xSize+1)] : prev._mesh.normals[i]);
-            prev._mesh.SetNormals(newNormalsForPrev);
+            for (var i = 0; i < _prev._mesh.normals.Length; i++)
+                newNormalsForPrev.Add(prevRightests.Contains(i) ? midNormals[i/(_xSize+1)] : _prev._mesh.normals[i]);
+            _prev._mesh.SetNormals(newNormalsForPrev);
         }
 
 

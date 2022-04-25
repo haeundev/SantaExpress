@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SantaExpress.Scripts
 {
-    public class ContinuousMeshGenerator : MonoBehaviour
+    public class SeamlessLandGenerator : MonoBehaviour
     {
         [SerializeField] private GameObject meshGenerator;
         [SerializeField] private Material material;
@@ -12,13 +12,13 @@ namespace SantaExpress.Scripts
         [SerializeField] private float perlinMin = .5f;
         [SerializeField] private float perlinMax = 2f;
 
-        private MeshGenerator _lastCreated;
+        private LandGenerator _lastCreated;
 
         private void Start()
         {
             for (var i = 0; i < 5; i++)
             {
-                var newPiece = Instantiate(meshGenerator, transform).GetComponent<MeshGenerator>();
+                var newPiece = Instantiate(meshGenerator, transform).GetComponent<LandGenerator>();
                 //var pos = newPiece.transform.position;
                 //newPiece.transform.position = new Vector3(pos.x * i, pos.y, pos.z);
                 newPiece.SetPrev(_lastCreated);
