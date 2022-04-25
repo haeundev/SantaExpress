@@ -125,15 +125,6 @@ namespace SantaExpress.Scripts
                 _mesh.RecalculateNormals();
             else
                 RecalculateNormalsSeamless();
-
-            // optionally, add a mesh collider (As suggested by Franku Kek via Youtube comments).
-            // To use this, your MeshGenerator GameObject needs to have a mesh collider
-            // component added to it.  Then, just re-enable the code below.
-            /*
-        mesh.RecalculateBounds();
-        MeshCollider meshCollider = gameObject.GetComponent<MeshCollider>();
-        meshCollider.sharedMesh = mesh;
-        //*/
         }
 
         private void RecalculateNormalsSeamless()
@@ -148,18 +139,18 @@ namespace SantaExpress.Scripts
             for (var i = 0; i < leftests.Count; i++) 
                 midNormals.Add((prevNormals[prevRightests[i]] + thisNormals[leftests[i]]) / 2);
             
-            var newNormalsForThis = new List<Vector3>();
-            for (var i = 0; i < _mesh.normals.Length; i++)
-                newNormalsForThis.Add(leftests.Contains(i) ? midNormals[i/(_xSize+1)] : _mesh.normals[i]);
-            _mesh.SetNormals(newNormalsForThis);
-
-            var newNormalsForPrev = new List<Vector3>();
-            for (var i = 0; i < prev._mesh.normals.Length; i++)
-                newNormalsForPrev.Add(prevRightests.Contains(i) ? midNormals[i/(_xSize+1)] : prev._mesh.normals[i]);
-            prev._mesh.SetNormals(newNormalsForPrev);
+            _mesh.SetNormals(GetNewNormals(_mesh, leftests, midNormals));
+            prev._mesh.SetNormals(GetNewNormals(prev._mesh, prevRightests, midNormals));
         }
-
-
+        
+        private List<Vector3> GetNewNormals(Mesh mesh, List<int> indicesToModify, List<Vector3> midNormals)
+        {
+            var result = new List<Vector3>();
+            for (var i = 0; i < mesh.normals.Length; i++)
+                result.Add(indicesToModify.Contains(i) ? midNormals[i / (_xSize + 1)] : _mesh.normals[i]);
+            return result;
+        }
+        
         private List<Vector3> GetRightestVertices()
         {
             var result = new List<Vector3>();
