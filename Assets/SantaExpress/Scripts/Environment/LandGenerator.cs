@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -30,7 +29,7 @@ namespace SantaExpress.Scripts
                 return;
             }
 
-            this._prev = prev;
+            _prev = prev;
         }
 
         public void SetSize(int xSize, int zSize)
@@ -45,12 +44,20 @@ namespace SantaExpress.Scripts
             _perlinMax = max;
         }
 
-        private void Start()
+        public void Create()
         {
             _mesh = new Mesh();
             GetComponent<MeshFilter>().mesh = _mesh;
             CreateShape();
             UpdateMesh();
+        }
+        
+        private void OnDrawGizmos()
+        {
+            if (_vertices == default)
+                return;
+            foreach (var v in _vertices)
+                Gizmos.DrawSphere(v + transform.position, 0.1f);
         }
         
         private void CreateShape()
@@ -70,22 +77,25 @@ namespace SantaExpress.Scripts
             else
             {
                 var prevRightest = _prev == default ? default : _prev.GetRightestVertices();
-
+            
+                //transform.localPosition = new Vector3(prevRightest.Last()..x, transform.localPosition.y, transform.localPosition.z);
+            
                 _vertices = new Vector3[(_xSize + 1) * (_zSize + 1)];
-
+            
                 for (int i = 0, z = 0; z <= _zSize; z++)
                 for (var x = 0; x <= _xSize; x++)
                 {
                     if (i % (_xSize + 1) == 0 && _prev != default) // for continuous generation.
                     {
-                        _vertices[i] = prevRightest[i / (_xSize + 1)];
+                        var rightest = prevRightest[i / (_xSize + 1)];
+                        _vertices[i] = new Vector3(x, rightest.y, rightest.z);
                     }
                     else
                     {
                         var y = Mathf.PerlinNoise(x * .3f, z * .3f) * Random.Range(_perlinMin, _perlinMax);
-                        _vertices[i] = new Vector3(_isInitialPiece ? x + 1 : prevRightest.First().x + x, y, z);
+                        _vertices[i] = new Vector3(x, y, z);
                     }
-
+            
                     i++;
                 }
             }
@@ -124,15 +134,6 @@ namespace SantaExpress.Scripts
                 _mesh.RecalculateNormals();
             else
                 RecalculateNormalsSeamless();
-
-            // optionally, add a mesh collider (As suggested by Franku Kek via Youtube comments).
-            // To use this, your MeshGenerator GameObject needs to have a mesh collider
-            // component added to it.  Then, just re-enable the code below.
-            /*
-        mesh.RecalculateBounds();
-        MeshCollider meshCollider = gameObject.GetComponent<MeshCollider>();
-        meshCollider.sharedMesh = mesh;
-        //*/
         }
 
         private void RecalculateNormalsSeamless()
@@ -158,7 +159,6 @@ namespace SantaExpress.Scripts
             _prev._mesh.SetNormals(newNormalsForPrev);
         }
 
-
         private List<Vector3> GetRightestVertices()
         {
             var result = new List<Vector3>();
@@ -174,13 +174,21 @@ namespace SantaExpress.Scripts
                 result.Add(i);
             return result;
         }
-        
-        public List<int> GetLeftestIndices()
+
+        private List<int> GetLeftestIndices()
         {
             var result = new List<int>();
             for (var i = 0; i < _vertices.Length; i += _xSize + 1)
                 result.Add(i);
             return result;
+        }
+        
+        public Vector3 GetLastVerticePosition()
+        {
+            if (_vertices == default)
+                return Vector3.zero;
+            var temp = _vertices[_xSize] + transform.position;
+            return new Vector3(temp.x, 0, temp.z);
         }
     }
 }
