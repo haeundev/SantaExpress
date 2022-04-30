@@ -123,12 +123,19 @@ namespace SantaExpress.Scripts
                 vert++;
             }
         }
-
+        
         private void UpdateMesh()
         {
             _mesh.Clear();
             _mesh.vertices = _vertices;
             _mesh.triangles = _triangles;
+
+            var uvs = new Vector2[_vertices.Length];
+            for (var i = 0; i < uvs.Length; i++)
+            {
+                uvs[i] = new Vector2(_vertices[i].x / _xSize, _vertices[i].z / _zSize);
+            }
+            _mesh.uv = uvs;
             
             if (_isInitialPiece)
                 _mesh.RecalculateNormals();
