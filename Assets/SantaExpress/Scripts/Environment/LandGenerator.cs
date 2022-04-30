@@ -52,13 +52,13 @@ namespace SantaExpress.Scripts
             UpdateMesh();
         }
         
-        private void OnDrawGizmos()
-        {
-            if (_vertices == default)
-                return;
-            foreach (var v in _vertices)
-                Gizmos.DrawSphere(v + transform.position, 0.1f);
-        }
+        // private void OnDrawGizmos()
+        // {
+        //     if (_vertices == default)
+        //         return;
+        //     foreach (var v in _vertices)
+        //         Gizmos.DrawSphere(v + transform.position, 0.1f);
+        // }
         
         private void CreateShape()
         {
