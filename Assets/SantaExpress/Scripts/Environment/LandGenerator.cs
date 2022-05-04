@@ -129,18 +129,20 @@ namespace SantaExpress.Scripts
             _mesh.Clear();
             _mesh.vertices = _vertices;
             _mesh.triangles = _triangles;
-
-            var uvs = new Vector2[_vertices.Length];
-            for (var i = 0; i < uvs.Length; i++)
-            {
-                uvs[i] = new Vector2(_vertices[i].x / _xSize, _vertices[i].z / _zSize);
-            }
-            _mesh.uv = uvs;
+            SetUVs();
             
             if (_isInitialPiece)
                 _mesh.RecalculateNormals();
             else
                 RecalculateNormalsSeamless();
+        }
+
+        private void SetUVs()
+        {
+            var uvs = new Vector2[_vertices.Length];
+            for (var i = 0; i < uvs.Length; i++)
+                uvs[i] = new Vector2(_vertices[i].x / _xSize, _vertices[i].z / _zSize);
+            _mesh.uv = uvs;
         }
 
         private void RecalculateNormalsSeamless()

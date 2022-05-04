@@ -27,14 +27,6 @@ namespace SantaExpress.Scripts
                 Instantiate();
         }
 
-        private void Update()
-        {
-            foreach (var land in _lands)
-            {
-                Debug.Log($"{land.GetLastVerticePosition()}");
-            }
-        }
-
         private void OnTriggerEnter(Collider other)
         {
             Destroy(_lands.Dequeue().gameObject);
