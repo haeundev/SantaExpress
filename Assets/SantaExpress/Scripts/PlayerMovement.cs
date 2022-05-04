@@ -10,7 +10,7 @@ namespace SantaExpress.Scripts
         public void FixedUpdate()
         {
             var direction = Vector3.right * joystick.Horizontal + Vector3.up * joystick.Vertical;
-            transform.position += direction * speed;
+            transform.position += direction * speed * 0.01f;
         }
     }
 }

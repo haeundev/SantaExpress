@@ -29,6 +29,8 @@ namespace SantaExpress.Scripts
 
         private void OnTriggerEnter(Collider other)
         {
+            if (_lands.Count == 0)
+                return;
             Destroy(_lands.Dequeue().gameObject);
             Instantiate();
         }
