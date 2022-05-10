@@ -24,7 +24,10 @@ public class HouseSpawner : MonoBehaviour
                 var linearMovement = houseObj.AddComponent<LinearMovement>();
                 linearMovement.direction = Vector3.left;
                 linearMovement.speed = 150f;
-                var destroyByX = houseObj.AddComponent<DestroyByX>();
+                var destroyBy = houseObj.AddComponent<DestroyByPosition>();
+                destroyBy.coordinate = DestroyByPosition.Coordinate.X;
+                destroyBy.direction = DestroyByPosition.Direction.Left;
+                destroyBy.worldX = -51.7f;
             };
 
             var rnd = Random.Range(0.5f, 1.5f);
